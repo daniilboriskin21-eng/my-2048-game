@@ -1,0 +1,28 @@
+body {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+  background: #faf8ef;
+}
+
+.game {
+  display: grid;
+  grid-template-columns: repeat(4, 80px);
+  gap: 10px;
+  background: #bbada0;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.cell {
+  width: 80px;
+  height: 80px;
+  background: #cdc1b4;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 28px;
+  font-weight: bold;
+}
