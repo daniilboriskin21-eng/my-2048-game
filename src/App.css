@@ -1,8 +1,21 @@
 body {
-  display: flex;
-  justify-content: center;
   margin-top: 50px;
   background: #faf8ef;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+}
+
+h2 {
+  font-family: Arial;
+  margin-bottom: 20px;
+  background-color: #cdc1b4;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 .game {

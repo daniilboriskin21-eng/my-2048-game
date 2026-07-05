@@ -62,10 +62,15 @@ function slideRowLeft(row) {
   const compactRow = row.filter((cell) => cell !== 0);
 
   const mergedRow = [];
+  let score = 0;
 
   for (let i = 0; i < compactRow.length; i++) {
     if (compactRow[i] === compactRow[i + 1]) {
-      mergedRow.push(compactRow[i] * 2);
+      const mergedValue = compactRow[i] * 2;
+
+      mergedRow.push(mergedValue);
+      score += mergedValue;
+
       i++;
     } else {
       mergedRow.push(compactRow[i]);
@@ -76,29 +81,59 @@ function slideRowLeft(row) {
     mergedRow.push(0);
   }
 
-  return mergedRow;
+  return {
+    row: mergedRow,
+    score,
+  };
 }
 
 function moveLeft(board) {
-  return board.map(slideRowLeft);
+  let score = 0;
+
+  const newBoard = board.map((row) => {
+    const result = slideRowLeft(row);
+
+    score += result.score;
+
+    return result.row;
+  });
+
+  return {
+    board: newBoard,
+    score,
+  };
 }
 
 function moveRight(board) {
   const reversedBoard = reverseRows(board);
-  const movedBoard = moveLeft(reversedBoard);
-  return reverseRows(movedBoard);
+  const result = moveLeft(reversedBoard);
+
+  return {
+    board: reverseRows(result.board),
+    score: result.score
+  };
 }
 
 function moveUp(board) {
   const transposedBoard = transpose(board);
-  const movedBoard = moveLeft(transposedBoard);
-  return transpose(movedBoard);
+
+  const result = moveLeft(transposedBoard);
+
+  return {
+    board: transpose(result.board),
+    score: result.score
+  };
 }
 
 function moveDown(board) {
   const transposedBoard = transpose(board);
-  const movedBoard = moveRight(transposedBoard);
-  return transpose(movedBoard);
+
+  const result = moveRight(transposedBoard);
+
+  return {
+    board: transpose(result.board),
+    score: result.score
+  };
 }
 
 function App() {
@@ -109,33 +144,37 @@ function App() {
     [0, 0, 0, 0],
   ]);
 
+  const [score, setScore] = useState(0);
+
   useEffect(() => {
     function handleKeyDown(event) {
       setBoard((prevBoard) => {
-        let movedBoard;
+        let result;
 
         switch (event.key) {
           case "ArrowLeft":
-            movedBoard = moveLeft(prevBoard);
+            result = moveLeft(prevBoard);
             break;
           case "ArrowRight":
-            movedBoard = moveRight(prevBoard);
+            result = moveRight(prevBoard);
             break;
           case "ArrowUp":
-            movedBoard = moveUp(prevBoard);
+            result = moveUp(prevBoard);
             break;
           case "ArrowDown":
-            movedBoard = moveDown(prevBoard);
+            result = moveDown(prevBoard);
             break;
           default:
             return prevBoard;
         }
 
-        if (boardsEqual(prevBoard, movedBoard)) {
+        if (boardsEqual(prevBoard, result.board)) {
           return prevBoard;
         }
 
-        return addRandomTile(movedBoard);
+        setScore(prev => prev + result.score);
+
+        return addRandomTile(result.board);
       });
     }
 
@@ -147,14 +186,8 @@ function App() {
   }, []);
 
   return (
-    <div>
-      <button
-        onClick={() => {
-          setBoard((prev) => addRandomTile(prev));
-        }}
-      >
-        Add tile
-      </button>
+    <div className="container">
+      <h2>Score: {score}</h2>
       <div className="game">
         {board.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
