@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import GameBoard from "./components/GameBoard";
 import Score from "./components/Score";
+import GameMessage from "./components/GameMessage";
 
 import {
   boardsEqual,
@@ -18,7 +19,7 @@ import {
 function App() {
   // Игровое поле.
   // При первом рендере создаём новое поле с двумя случайными плитками.
-  const [board, setBoard] = useState(createInitialBoard);
+  const [board, setBoard] = useState(createInitialBoard());
   const boardRef = useRef(board);
 
   // Текущий счёт игрока.
@@ -30,6 +31,9 @@ function App() {
   // Показывает, выиграл ли игрок.
   const [gameWon, setGameWon] = useState(false);
 
+  // Запоминает, было ли уже показано сообщение о победе, чтобы не показывать его повторно.
+  const winAcknowledged = useRef(false);
+
   // Подписываемся на нажатия клавиш.
   useEffect(() => {
     function handleKeyDown(event) {
@@ -37,7 +41,7 @@ function App() {
       if (gameOver) {
         return;
       }
-      
+
       const prevBoard = boardRef.current;
       let result;
 
@@ -78,9 +82,9 @@ function App() {
       // Проверяем, остались ли возможные ходы.
       setGameOver(isGameOver(newBoard));
 
-      // Проверяем, выиграл ли игрок.
-      if (isGameWon(newBoard)) {
+      if (!winAcknowledged.current && isGameWon(newBoard)) {
         setGameWon(true);
+        winAcknowledged.current = true;
       }
 
       // Добавляем очки, полученные за объединение плиток.
@@ -95,7 +99,7 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [gameOver, gameWon]);
+  }, [gameOver]);
 
   // Начинает новую игру.
   function restartGame() {
@@ -112,16 +116,13 @@ function App() {
 
     // Сбрасываем состояние You Win.
     setGameWon(false);
+
+    // Сбрасываем флаг, показывающий, что сообщение о победе уже было показано.
+    winAcknowledged.current = false;
   }
 
   return (
     <div className="container">
-      {/* Показываем сообщение только после окончания игры. */}
-      {gameOver && <div className="game-message game-over">Game Over!</div>}
-
-      {/* Показываем сообщение только после выигрыша. */}
-      {gameWon && <div className="game-message game-won">You Win!</div>}
-
       <div className="controls">
         <Score score={score} />
 
@@ -129,7 +130,19 @@ function App() {
         <button onClick={restartGame}>Restart</button>
       </div>
 
-      <GameBoard board={board} />
+      <div className="game-container">
+        {/* Показываем сообщение только после окончания игры или выигрыша. */}
+        {gameOver && <GameMessage type="over" onRestart={restartGame} />}
+        {gameWon && (
+          <GameMessage
+            type="won"
+            onRestart={restartGame}
+            onContinue={() => setGameWon(false)}
+          />
+        )}
+
+        <GameBoard board={board} />
+      </div>
     </div>
   );
 }

@@ -1,5 +1,4 @@
 body {
-  margin-top: 50px;
   background: #faf8ef;
 }
 
@@ -10,72 +9,42 @@ body {
   margin-top: 50px;
 }
 
+/* Счёт */
 .score {
   font-family: Arial;
   font-size: 24px;
   font-weight: bold;
+
   background-color: #bbada0;
   color: #f9f6f2;
+
   padding: 10px 20px;
   border-radius: 6px;
 }
 
-.game-message {
-  font-family: Arial;
-  font-size: 28px;
-  font-weight: bold;
-  padding: 12px 24px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-}
-
-.game-over {
-  background-color: #776e65;
-  color: #f9f6f2;
-}
-
-.game-won {
-  background-color: #edc22e;
-  color: #f9f6f2;
-}
-
-.game {
-  display: grid;
-  grid-template-columns: repeat(4, 80px);
-  gap: 10px;
-  background: #bbada0;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.cell {
-  width: 80px;
-  height: 80px;
-  background: #cdc1b4;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  font-size: 28px;
-  font-weight: bold;
-}
-
+/* Блок со счётом и кнопкой Restart */
 .controls {
   width: 100%;
+
   display: flex;
   justify-content: space-around;
   align-items: center;
+
   margin-bottom: 20px;
 }
 
+/* Кнопки */
 button {
   padding: 10px 18px;
+
   border: none;
   border-radius: 6px;
+
   background: #8f7a66;
   color: white;
+
   font-weight: bold;
+
   cursor: pointer;
 }
 
@@ -83,10 +52,43 @@ button:hover {
   background: #7d6b59;
 }
 
+/* Игровое поле */
+.game-container {
+  position: relative;
+}
+
+.game {
+  display: grid;
+  grid-template-columns: repeat(4, 80px);
+  gap: 10px;
+
+  background: #bbada0;
+
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* Отдельная клетка */
+.cell {
+  width: 80px;
+  height: 80px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: #cdc1b4;
+
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Пустая клетка */
 .tile-0 {
   background: #cdc1b4;
 }
 
+/* Плитки */
 .tile-2 {
   background: #eee4da;
 }
@@ -131,11 +133,13 @@ button:hover {
   background: #edc22e;
 }
 
+/* Цвет текста для светлых плиток */
 .tile-2,
 .tile-4 {
   color: #776e65;
 }
 
+/* Цвет текста для тёмных плиток */
 .tile-8,
 .tile-16,
 .tile-32,
@@ -146,4 +150,42 @@ button:hover {
 .tile-1024,
 .tile-2048 {
   color: #f9f6f2;
+}
+
+/* Overlay для Game Over / You Win */
+.game-message {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(187, 173, 160, 0.8);
+
+  border-radius: 10px;
+
+  z-index: 10;
+}
+
+/* Заголовок сообщения */
+.game-message h2 {
+  margin: 0 0 20px;
+
+  font-family: Arial;
+  font-size: 36px;
+
+  background: none;
+  padding: 0;
+}
+
+/* Кнопки внутри сообщения */
+.message-buttons {
+  display: flex;
+  gap: 10px;
 }
