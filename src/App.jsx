@@ -25,6 +25,11 @@ function App() {
   // Текущий счёт игрока.
   const [score, setScore] = useState(0);
 
+  // Лучший счет игрока
+  const [bestScore, setBestScore] = useState(() => {
+    return Number(localStorage.getItem("bestScore")) || 0;
+  });
+
   // Показывает, закончилась ли игра.
   const [gameOver, setGameOver] = useState(false);
 
@@ -33,6 +38,14 @@ function App() {
 
   // Запоминает, было ли уже показано сообщение о победе, чтобы не показывать его повторно.
   const winAcknowledged = useRef(false);
+
+  // Следим за обновлением лучшего счёта
+  useEffect(() => {
+    if (score > bestScore) {
+      setBestScore(score);
+      localStorage.setItem("bestScore", score);
+    }
+  }, [score, bestScore]);
 
   // Подписываемся на нажатия клавиш.
   useEffect(() => {
@@ -88,7 +101,16 @@ function App() {
       }
 
       // Добавляем очки, полученные за объединение плиток.
-      setScore((prev) => prev + result.score);
+      setScore((prev) => {
+        const newScore = prev + result.score;
+
+        if (newScore > bestScore) {
+          setBestScore(newScore);
+          localStorage.setItem("bestScore", newScore);
+        }
+
+        return newScore;
+      });
     }
 
     // Добавляем обработчик нажатия клавиш.
@@ -100,6 +122,11 @@ function App() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [gameOver]);
+
+  // Продолжаем игру после 2048
+  function continueGame() {
+    setGameWon(false);
+  }
 
   // Начинает новую игру.
   function restartGame() {
@@ -124,10 +151,7 @@ function App() {
   return (
     <div className="container">
       <div className="controls">
-        <Score score={score} />
-
-        {/* Перезапускаем игру по нажатию кнопки. */}
-        <button onClick={restartGame}>Restart</button>
+        <Score score={score} bestScore={bestScore} />
       </div>
 
       <div className="game-container">
@@ -137,7 +161,7 @@ function App() {
           <GameMessage
             type="won"
             onRestart={restartGame}
-            onContinue={() => setGameWon(false)}
+            onContinue={continueGame}
           />
         )}
 
