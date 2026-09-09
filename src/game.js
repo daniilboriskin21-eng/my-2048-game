@@ -23,9 +23,7 @@ export function reverseRows(board) {
 // Используется для реализации движения вверх и вниз
 // через алгоритм движения влево и вправо.
 export function transpose(board) {
-  return board[0].map((_, colIndex) =>
-    board.map((row) => row[colIndex]),
-  );
+  return board[0].map((_, colIndex) => board.map((row) => row[colIndex]));
 }
 
 // Находит все пустые ячейки игрового поля.
@@ -115,11 +113,51 @@ export function addRandomTile(board) {
   return newBoard;
 }
 
+// Добавляет новую случайную плитку и возвращает
+// игровое поле вместе с координатами новой плитки.
+export function addRandomTileWithPosition(board) {
+  const emptyCells = findEmptyCells(board);
+
+  // Если свободных ячеек нет,
+  // возвращаем исходное поле без новой плитки.
+  if (emptyCells.length === 0) {
+    return {
+      board,
+      newTile: null,
+    };
+  }
+
+  // Создаём копию игрового поля.
+  const newBoard = board.map((row) => [...row]);
+
+  // Выбираем случайную пустую ячейку.
+  const randomCell = getRandomEmptyCell(emptyCells);
+
+  // Генерируем значение новой плитки.
+  const value = getRandomTileValue();
+
+  // Добавляем плитку.
+  newBoard[randomCell.row][randomCell.col] = value;
+
+  return {
+    board: newBoard,
+
+    // Запоминаем координаты и значение новой плитки.
+    newTile: {
+      row: randomCell.row,
+      col: randomCell.col,
+      value,
+    },
+  };
+}
+
 // Выполняет движение одной строки влево.
 // Убирает нули, объединяет одинаковые соседние плитки
 // и добавляет нули в конец строки.
 // Также возвращает количество набранных очков.
 export function slideRowLeft(row) {
+  const mergedPositions = [];
+
   // Убираем все пустые ячейки.
   const compactRow = row.filter((cell) => cell !== 0);
 
@@ -133,6 +171,7 @@ export function slideRowLeft(row) {
     if (compactRow[i] === compactRow[i + 1]) {
       const mergedValue = compactRow[i] * 2;
 
+      mergedPositions.push(mergedRow.length);
       mergedRow.push(mergedValue);
       score += mergedValue;
 
@@ -154,19 +193,26 @@ export function slideRowLeft(row) {
   return {
     row: mergedRow,
     score,
+    mergedPositions,
   };
 }
 
 // Выполняет движение всего игрового поля влево.
 export function moveLeft(board) {
   let score = 0;
+  const mergedTiles = [];
 
-  // Обрабатываем каждую строку отдельно.
-  const newBoard = board.map((row) => {
+  const newBoard = board.map((row, rowIndex) => {
     const result = slideRowLeft(row);
 
-    // Суммируем очки от объединений всех строк.
     score += result.score;
+
+    result.mergedPositions.forEach((colIndex) => {
+      mergedTiles.push({
+        row: rowIndex,
+        col: colIndex,
+      });
+    });
 
     return result.row;
   });
@@ -174,6 +220,7 @@ export function moveLeft(board) {
   return {
     board: newBoard,
     score,
+    mergedTiles,
   };
 }
 
@@ -183,9 +230,15 @@ export function moveRight(board) {
   const reversedBoard = reverseRows(board);
   const result = moveLeft(reversedBoard);
 
+  const mergedTiles = result.mergedTiles.map((tile) => ({
+    row: tile.row,
+    col: board[tile.row].length - 1 - tile.col,
+  }));
+
   return {
     board: reverseRows(result.board),
     score: result.score,
+    mergedTiles,
   };
 }
 
@@ -194,12 +247,17 @@ export function moveRight(board) {
 // после чего применяем движение влево.
 export function moveUp(board) {
   const transposedBoard = transpose(board);
-
   const result = moveLeft(transposedBoard);
+
+  const mergedTiles = result.mergedTiles.map((tile) => ({
+    row: tile.col,
+    col: tile.row,
+  }));
 
   return {
     board: transpose(result.board),
     score: result.score,
+    mergedTiles,
   };
 }
 
@@ -207,12 +265,17 @@ export function moveUp(board) {
 // Транспонируем поле, после чего применяем движение вправо.
 export function moveDown(board) {
   const transposedBoard = transpose(board);
-
   const result = moveRight(transposedBoard);
+
+  const mergedTiles = result.mergedTiles.map((tile) => ({
+    row: tile.col,
+    col: tile.row,
+  }));
 
   return {
     board: transpose(result.board),
     score: result.score,
+    mergedTiles,
   };
 }
 

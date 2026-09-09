@@ -9,64 +9,90 @@ body {
   margin-top: 50px;
 }
 
-/* Блок со Score и Best */
+/* Верхняя часть игры */
+.header {
+  width: 370px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 15px;
+}
+
+/* Заголовок 2048 */
+.header h1 {
+  margin: 0;
+
+  font-family: Arial, sans-serif;
+  font-size: 70px;
+  font-weight: bold;
+  line-height: 1;
+
+  color: #776e65;
+}
+
+/* Правая часть */
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  gap: 8px;
+}
+
+/* Score и Best */
 .score {
   display: flex;
-  gap: 10px;
+  gap: 5px;
 
   font-family: Arial, sans-serif;
 }
 
-/* Отдельный счётчик */
+/* Отдельный Score / Best */
 .score-item {
-  min-width: 80px;
+  min-width: 65px;
 
-  padding: 8px 15px;
+  padding: 6px 10px;
 
   background-color: #bbada0;
   color: #f9f6f2;
 
-  border-radius: 6px;
+  border-radius: 4px;
 
   text-align: center;
 }
 
-/* Название счётчика */
+/* Название */
 .score-item span {
   display: block;
 
-  font-size: 13px;
+  font-size: 11px;
   font-weight: bold;
   text-transform: uppercase;
 }
 
-/* Значение счётчика */
+/* Число */
 .score-item strong {
   display: block;
 
   margin-top: 2px;
 
-  font-size: 22px;
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  margin-bottom: 20px;
+  font-size: 20px;
 }
 
 /* Кнопки */
 button {
-  padding: 10px 18px;
+  padding: 8px 15px;
 
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
 
   background: #8f7a66;
   color: white;
 
+  font-family: Arial, sans-serif;
+  font-size: 14px;
   font-weight: bold;
 
   cursor: pointer;
@@ -74,6 +100,10 @@ button {
 
 button:hover {
   background: #7d6b59;
+}
+
+button:active {
+  transform: scale(0.97);
 }
 
 /* Игровое поле */
@@ -105,6 +135,38 @@ button:hover {
 
   font-size: 28px;
   font-weight: bold;
+}
+
+.tile-new {
+  animation: tileAppear 0.15s ease-in-out;
+}
+
+@keyframes tileAppear {
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+.tile-merge {
+    animation: tileMerge 0.15s ease-in-out;
+}
+
+@keyframes tileMerge {
+  from {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+
+  to {
+    transform: scale(1);
+  }
 }
 
 /* Пустая клетка */

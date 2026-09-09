@@ -11,6 +11,7 @@ import {
   moveUp,
   moveDown,
   addRandomTile,
+  addRandomTileWithPosition,
   isGameOver,
   createInitialBoard,
   isGameWon,
@@ -21,6 +22,11 @@ function App() {
   // При первом рендере создаём новое поле с двумя случайными плитками.
   const [board, setBoard] = useState(createInitialBoard());
   const boardRef = useRef(board);
+
+  // Координаты и значение последней созданной плитки.
+  const [newTile, setNewTile] = useState(null);
+
+  const [mergedTiles, setMergedTiles] = useState([]);
 
   // Текущий счёт игрока.
   const [score, setScore] = useState(0);
@@ -88,9 +94,17 @@ function App() {
 
       // Вычисляем новый результат вне setState, чтобы StrictMode
       // не повторил случайный ход и побочные обновления состояния.
-      const newBoard = addRandomTile(result.board);
+      const resultWithTile = addRandomTileWithPosition(result.board);
+
+      const newBoard = resultWithTile.board;
+      const newTile = resultWithTile.newTile;
+      const mergedTiles = result.mergedTiles;
+
       boardRef.current = newBoard;
       setBoard(newBoard);
+
+      setNewTile(newTile);
+      setMergedTiles(mergedTiles);
 
       // Проверяем, остались ли возможные ходы.
       setGameOver(isGameOver(newBoard));
@@ -150,8 +164,14 @@ function App() {
 
   return (
     <div className="container">
-      <div className="controls">
-        <Score score={score} bestScore={bestScore} />
+      <div className="header">
+        <h1>2048</h1>
+
+        <div className="header-right">
+          <Score score={score} bestScore={bestScore} />
+
+          <button onClick={restartGame}>New Game</button>
+        </div>
       </div>
 
       <div className="game-container">
@@ -165,7 +185,7 @@ function App() {
           />
         )}
 
-        <GameBoard board={board} />
+        <GameBoard board={board} newTile={newTile} mergedTiles={mergedTiles} />
       </div>
     </div>
   );
