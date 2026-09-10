@@ -169,6 +169,20 @@ button:active {
   }
 }
 
+.tile-move {
+  animation: tileMove 0.15s ease-in-out;
+}
+
+@keyframes tileMove {
+  from {
+    transform: translate(var(--move-x), var(--move-y));
+  }
+
+  to {
+    transform: translate(0, 0);
+  }
+}
+
 /* Пустая клетка */
 .tile-0 {
   background: #cdc1b4;

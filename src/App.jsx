@@ -15,6 +15,7 @@ import {
   isGameOver,
   createInitialBoard,
   isGameWon,
+  getLeftMovements,
 } from "./game";
 
 function App() {
@@ -27,6 +28,8 @@ function App() {
   const [newTile, setNewTile] = useState(null);
 
   const [mergedTiles, setMergedTiles] = useState([]);
+
+  const [movements, setMovements] = useState([]);
 
   // Текущий счёт игрока.
   const [score, setScore] = useState(0);
@@ -99,12 +102,14 @@ function App() {
       const newBoard = resultWithTile.board;
       const newTile = resultWithTile.newTile;
       const mergedTiles = result.mergedTiles;
+      const movements = result.movements;
 
       boardRef.current = newBoard;
       setBoard(newBoard);
 
       setNewTile(newTile);
       setMergedTiles(mergedTiles);
+      setMovements(movements);
 
       // Проверяем, остались ли возможные ходы.
       setGameOver(isGameOver(newBoard));
@@ -162,6 +167,18 @@ function App() {
     winAcknowledged.current = false;
   }
 
+  useEffect(() => {
+    if (movements.length === 0) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setMovements([]);
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [movements]);
+
   return (
     <div className="container">
       <div className="header">
@@ -185,7 +202,12 @@ function App() {
           />
         )}
 
-        <GameBoard board={board} newTile={newTile} mergedTiles={mergedTiles} />
+        <GameBoard
+          board={board}
+          newTile={newTile}
+          mergedTiles={mergedTiles}
+          movements={movements}
+        />
       </div>
     </div>
   );

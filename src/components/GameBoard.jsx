@@ -1,6 +1,6 @@
 import Tile from "./Tile";
 
-const GameBoard = ({ board, newTile, mergedTiles }) => {
+const GameBoard = ({ board, newTile, mergedTiles, movements }) => {
   return (
     <div className="game">
       {/* Преобразуем двумерный массив board
@@ -15,6 +15,10 @@ const GameBoard = ({ board, newTile, mergedTiles }) => {
             }
             isMerged={mergedTiles.some(
               (tile) => tile.row === rowIndex && tile.col === colIndex,
+            )}
+            movement={movements.find(
+              (movement) =>
+                movement.to.row === rowIndex && movement.to.col === colIndex,
             )}
           />
         )),
