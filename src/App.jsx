@@ -31,6 +31,9 @@ function App() {
 
   const [movements, setMovements] = useState([]);
 
+  const [animationPhase, setAnimationPhase] = useState("none");
+  const [isAnimating, setIsAnimating] = useState(false);
+
   // Текущий счёт игрока.
   const [score, setScore] = useState(0);
 
@@ -60,7 +63,7 @@ function App() {
   useEffect(() => {
     function handleKeyDown(event) {
       // Если игра закончилась, игнорируем нажатия клавиш.
-      if (gameOver) {
+      if (gameOver || isAnimating) {
         return;
       }
 
@@ -100,16 +103,16 @@ function App() {
       const resultWithTile = addRandomTileWithPosition(result.board);
 
       const newBoard = resultWithTile.board;
-      const newTile = resultWithTile.newTile;
-      const mergedTiles = result.mergedTiles;
       const movements = result.movements;
 
       boardRef.current = newBoard;
       setBoard(newBoard);
 
-      setNewTile(newTile);
-      setMergedTiles(mergedTiles);
+      setNewTile(null);
+      setMergedTiles([]);
       setMovements(movements);
+      setAnimationPhase("move");
+      setIsAnimating(true);
 
       // Проверяем, остались ли возможные ходы.
       setGameOver(isGameOver(newBoard));
@@ -140,7 +143,49 @@ function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [gameOver]);
+  }, [gameOver, isAnimating]);
+
+  useEffect(() => {
+    if (animationPhase !== "move") {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setMovements([]);
+      setMergedTiles(mergedTiles);
+      setAnimationPhase("merge");
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [animationPhase, mergedTiles]);
+
+  useEffect(() => {
+    if (animationPhase !== "merge") {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setMergedTiles([]);
+      setNewTile(newTile);
+      setAnimationPhase("new");
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [animationPhase, newTile]);
+
+  useEffect(() => {
+    if (animationPhase !== "new") {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setNewTile(null);
+      setAnimationPhase("none");
+      setIsAnimating(false);
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [animationPhase]);
 
   // Продолжаем игру после 2048
   function continueGame() {

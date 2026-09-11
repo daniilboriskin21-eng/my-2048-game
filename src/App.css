@@ -153,6 +153,7 @@ button:active {
 
 .tile-merge {
     animation: tileMerge 0.15s ease-in-out;
+    z-index: 2;
 }
 
 @keyframes tileMerge {
