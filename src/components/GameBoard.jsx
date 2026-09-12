@@ -2,7 +2,12 @@ import Tile from "./Tile";
 
 const GameBoard = ({ board, newTile, mergedTiles, movements }) => {
   return (
-    <div className="game">
+    <div
+      className="game"
+      style={{
+        "--board-size": board.length,
+      }}
+    >
       {/* Преобразуем двумерный массив board
             в набор React-компонентов. */}
       {board.map((row, rowIndex) =>

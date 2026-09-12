@@ -113,11 +113,9 @@ button:active {
 
 .game {
   display: grid;
-  grid-template-columns: repeat(4, 80px);
+  grid-template-columns: repeat(var(--board-size), 80px);
   gap: 10px;
-
   background: #bbada0;
-
   padding: 10px;
   border-radius: 10px;
 }
@@ -289,4 +287,45 @@ button:active {
 .message-buttons {
   display: flex;
   gap: 10px;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.start-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+.start-screen h1 {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  font-size: 60px;
+  font-weight: bold;
+  color: #776e65;
+}
+
+.start-screen h2 {
+  margin: 10px 0 25px;
+  font-family: Arial, sans-serif;
+  font-size: 22px;
+  color: #776e65;
+}
+
+.size-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 140px);
+  gap: 12px;
+}
+
+.size-buttons button {
+  height: 55px;
+  font-size: 18px;
 }
