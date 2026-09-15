@@ -118,6 +118,7 @@ button:active {
   background: #bbada0;
   padding: 10px;
   border-radius: 10px;
+  touch-action: none;
 }
 
 /* Отдельная клетка */
@@ -136,7 +137,7 @@ button:active {
 }
 
 .tile-new {
-  animation: tileAppear 0.15s ease-in-out;
+  animation: tileAppear 0.15s ease-in-out both;
 }
 
 @keyframes tileAppear {
@@ -328,4 +329,22 @@ button:active {
 .size-buttons button {
   height: 55px;
   font-size: 18px;
+}
+
+
+@media (max-width: 480px) {
+  .game {
+    width: calc(100vw - 32px);
+    box-sizing: border-box;
+    grid-template-columns: repeat(var(--board-size), minmax(0, 1fr));
+    gap: 5px;
+    padding: 5px;
+  }
+
+  .cell {
+    width: auto;
+    height: auto;
+    aspect-ratio: 1;
+    font-size: clamp(13px, 6vw, 24px);
+  }
 }

@@ -26,6 +26,8 @@ export function useGameState() {
   const [board, setBoard] = useState(null);
   const boardRef = useRef(board);
 
+  const touchStartRef = useRef(null);
+
   // Координаты и значение последней созданной плитки
   const [newTile, setNewTile] = useState(null);
 
@@ -42,7 +44,9 @@ export function useGameState() {
   const [score, setScore] = useState(0);
 
   // Лучшие результаты для каждого размера доски
-  const [bestScores, setBestScores] = useState(() => loadAllBestScores(BOARD_SIZES));
+  const [bestScores, setBestScores] = useState(() =>
+    loadAllBestScores(BOARD_SIZES),
+  );
 
   // Показывает, закончилась ли игра
   const [gameOver, setGameOver] = useState(false);
@@ -52,6 +56,10 @@ export function useGameState() {
 
   // Запоминает, было ли уже показано сообщение о победе
   const winAcknowledged = useRef(false);
+
+  const pendingMergedTiles = useRef([]);
+  const pendingNewTile = useRef(null);
+  const pendingBoard = useRef(null);
 
   /**
    * Начинает новую игру
@@ -65,6 +73,7 @@ export function useGameState() {
     setScore(0);
     setGameOver(false);
     setGameWon(false);
+    setAnimationPhase("none");
     setNewTile(null);
     setMergedTiles([]);
     setMovements([]);
@@ -89,6 +98,10 @@ export function useGameState() {
     setScore(0);
     setGameOver(false);
     setGameWon(false);
+    setAnimationPhase("none");
+    setNewTile(null);
+    setMergedTiles([]);
+    setMovements([]);
     winAcknowledged.current = false;
   }
 
@@ -99,33 +112,47 @@ export function useGameState() {
     setGameStarted(false);
     setGameOver(false);
     setGameWon(false);
+    setAnimationPhase("none");
     setNewTile(null);
     setMergedTiles([]);
     setMovements([]);
   }
 
-  /**
-   * Гарантирует, что bestScore для текущего размера доски загружен из localStorage
-   */
-  useEffect(() => {
-    if (!gameStarted) {
+  function handleTouchStart(event) {
+    const touch = event.touches[0];
+
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+    };
+  }
+
+  function handleTouchEnd(event) {
+    const touch = event.changedTouches[0];
+    const start = touchStartRef.current;
+
+    if (!start) {
       return;
     }
 
-    setBestScores((prevBestScores) => {
-      const savedBestScore = localStorage.getItem(`bestScore${boardSize}`);
-      const currentBestScore = savedBestScore ? parseInt(savedBestScore, 10) : 0;
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
 
-      if (prevBestScores[boardSize] !== currentBestScore) {
-        return {
-          ...prevBestScores,
-          [boardSize]: currentBestScore,
-        };
-      }
+    // Не считать короткое касание свайпом
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 30) {
+      return;
+    }
 
-      return prevBestScores;
-    });
-  }, [boardSize, gameStarted]);
+    let key;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      key = dx > 0 ? "ArrowRight" : "ArrowLeft";
+    } else {
+      key = dy > 0 ? "ArrowDown" : "ArrowUp";
+    }
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { key }));
+  }
 
   /**
    * Обработчик нажатий клавиш для движения плиток
@@ -158,6 +185,8 @@ export function useGameState() {
           return;
       }
 
+      event.preventDefault();
+
       // Если после движения поле не изменилось, ход невозможен
       if (boardsEqual(prevBoard, result.board)) {
         return;
@@ -167,12 +196,21 @@ export function useGameState() {
       const resultWithTile = addRandomTileWithPosition(result.board);
 
       const newBoard = resultWithTile.board;
+      pendingBoard.current = newBoard;
       const movements = result.movements;
 
+      // Логическое состояние игры уже содержит новую плитку.
       boardRef.current = newBoard;
-      setBoard(newBoard);
+
+      // Но визуально показываем поле до появления новой плитки.
+      setBoard(result.board);
+
+      pendingMergedTiles.current = result.mergedTiles;
+      pendingNewTile.current = resultWithTile.newTile;
+
       setNewTile(null);
       setMergedTiles([]);
+
       setMovements(movements);
       setAnimationPhase("move");
 
@@ -225,12 +263,12 @@ export function useGameState() {
 
     const timer = setTimeout(() => {
       setMovements([]);
-      setMergedTiles(mergedTiles);
+      setMergedTiles(pendingMergedTiles.current);
       setAnimationPhase("merge");
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [animationPhase, mergedTiles]);
+  }, [animationPhase]);
 
   /**
    * Фаза анимации объединения
@@ -242,12 +280,13 @@ export function useGameState() {
 
     const timer = setTimeout(() => {
       setMergedTiles([]);
-      setNewTile(newTile);
+      setBoard(pendingBoard.current);
+      setNewTile(pendingNewTile.current);
       setAnimationPhase("new");
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [animationPhase, newTile]);
+  }, [animationPhase]);
 
   /**
    * Фаза анимации появления новой плитки
@@ -265,21 +304,6 @@ export function useGameState() {
     return () => clearTimeout(timer);
   }, [animationPhase]);
 
-  /**
-   * Очистка движений
-   */
-  useEffect(() => {
-    if (movements.length === 0) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setMovements([]);
-    }, 150);
-
-    return () => clearTimeout(timer);
-  }, [movements]);
-
   return {
     gameStarted,
     boardSize,
@@ -295,5 +319,7 @@ export function useGameState() {
     continueGame,
     restartGame,
     goToMenu,
+    handleTouchStart,
+    handleTouchEnd,
   };
 }

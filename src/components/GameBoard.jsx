@@ -1,9 +1,18 @@
 import Tile from "./Tile";
 
-const GameBoard = ({ board, newTile, mergedTiles, movements }) => {
+const GameBoard = ({
+  board,
+  newTile,
+  mergedTiles,
+  movements,
+  onTouchStart,
+  onTouchEnd,
+}) => {
   return (
     <div
       className="game"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
       style={{
         "--board-size": board.length,
       }}

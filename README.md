@@ -1,16 +1,72 @@
-# React + Vite
+# 2048
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Небольшая браузерная версия классической игры 2048, созданная на React и Vite.
 
-Currently, two official plugins are available:
+Выберите размер игрового поля, объединяйте одинаковые плитки и попробуйте собрать плитку **2048**. Для каждого размера поля сохраняется отдельный рекорд.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Возможности
 
-## React Compiler
+- Поля размером 4×4, 5×5, 6×6 и 8×8.
+- Управление стрелками клавиатуры и свайпами на сенсорных устройствах.
+- Подсчёт текущего счёта и лучший результат для каждого размера доски.
+- Сохранение рекордов в `localStorage` браузера.
+- Анимации перемещения, объединения и появления новых плиток.
+- Сообщения о победе и окончании игры.
+- Кнопки создания новой игры и возврата в меню.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Запуск проекта
 
-## Expanding the ESLint configuration
+Установите зависимости:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+```
+
+Запустите режим разработки:
+
+```bash
+npm run dev
+```
+
+После запуска Vite выведет локальный адрес, обычно `http://localhost:5173`.
+
+## Команды
+
+| Команда | Назначение |
+| --- | --- |
+| `npm run dev` | Запускает локальный сервер разработки. |
+| `npm run build` | Собирает production-версию в папку `dist`. |
+| `npm run preview` | Показывает собранную версию локально. |
+| `npm run lint` | Проверяет код с помощью ESLint. |
+
+## Управление
+
+| Устройство | Действие |
+| --- | --- |
+| Клавиатура | Используйте стрелки ← ↑ → ↓. |
+| Телефон или планшет | Проведите пальцем по игровому полю в нужную сторону. |
+
+Каждый успешный ход сдвигает плитки, объединяет одинаковые значения и добавляет на свободную клетку новую плитку — `2` или `4`.
+
+## Структура проекта
+
+```text
+src/
+├── components/  # Компоненты интерфейса: поле, плитка, счёт и сообщения
+├── hooks/       # Управление состоянием и игровым циклом
+├── utils/       # Логика ходов, плиток, поля и localStorage
+├── App.jsx      # Основной компонент приложения
+└── game.js      # Единая точка экспорта игровой логики
+```
+
+## Технологии
+
+- React
+- Vite
+- JavaScript
+- CSS
+- ESLint
+
+## Правила 2048
+
+Плитки с одинаковыми значениями объединяются при движении. Например, `2 + 2 = 4`, а `128 + 128 = 256`. За каждое объединение начисляются очки, равные значению получившейся плитки. Игра завершается, когда на поле не остаётся свободных клеток и больше нет возможных объединений.

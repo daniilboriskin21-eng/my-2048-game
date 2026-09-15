@@ -25,6 +25,8 @@ function App() {
     continueGame,
     restartGame,
     goToMenu,
+    handleTouchStart,
+    handleTouchEnd,
   } = useGameState();
 
   if (!gameStarted) {
@@ -32,7 +34,7 @@ function App() {
   }
 
   return (
-    <div className="container">
+    <div className={`container board-size-${boardSize}`}>
       <div className="header">
         <h1>2048</h1>
 
@@ -61,6 +63,8 @@ function App() {
           newTile={newTile}
           mergedTiles={mergedTiles}
           movements={movements}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         />
       </div>
     </div>
