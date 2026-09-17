@@ -27,6 +27,8 @@ function App() {
     goToMenu,
     handleTouchStart,
     handleTouchEnd,
+    canUndo,
+    undo,
   } = useGameState();
 
   if (!gameStarted) {
@@ -43,6 +45,9 @@ function App() {
 
           <div className="header-buttons">
             <button onClick={goToMenu}>Menu</button>
+            <button onClick={undo} disabled={!canUndo}>
+              Undo
+            </button>
             <button onClick={restartGame}>New Game</button>
           </div>
         </div>

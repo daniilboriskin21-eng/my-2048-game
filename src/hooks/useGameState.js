@@ -26,6 +26,10 @@ export function useGameState() {
   const [board, setBoard] = useState(null);
   const boardRef = useRef(board);
 
+  const scoreRef = useRef(0);
+  const historyRef = useRef(null);
+  const [canUndo, setCanUndo] = useState(false);
+
   const touchStartRef = useRef(null);
 
   // Координаты и значение последней созданной плитки
@@ -71,6 +75,9 @@ export function useGameState() {
     boardRef.current = newBoard;
     setBoard(newBoard);
     setScore(0);
+    scoreRef.current = 0;
+    historyRef.current = null;
+    setCanUndo(false);
     setGameOver(false);
     setGameWon(false);
     setAnimationPhase("none");
@@ -96,6 +103,9 @@ export function useGameState() {
     boardRef.current = newBoard;
     setBoard(newBoard);
     setScore(0);
+    scoreRef.current = 0;
+    historyRef.current = null;
+    setCanUndo(false);
     setGameOver(false);
     setGameWon(false);
     setAnimationPhase("none");
@@ -116,6 +126,39 @@ export function useGameState() {
     setNewTile(null);
     setMergedTiles([]);
     setMovements([]);
+    historyRef.current = null;
+    setCanUndo(false);
+  }
+
+  function undo() {
+    const previousState = historyRef.current;
+
+    if (!previousState) {
+      return;
+    }
+
+    boardRef.current = previousState.board;
+    scoreRef.current = previousState.score;
+
+    setBoard(previousState.board);
+    setScore(previousState.score);
+    setGameOver(previousState.gameOver);
+    setGameWon(previousState.gameWon);
+
+    winAcknowledged.current = previousState.winAcknowledged;
+
+    // Отменяем возможные анимации последнего хода.
+    setAnimationPhase("none");
+    setNewTile(null);
+    setMergedTiles([]);
+    setMovements([]);
+
+    pendingBoard.current = null;
+    pendingNewTile.current = null;
+    pendingMergedTiles.current = [];
+
+    historyRef.current = null;
+    setCanUndo(false);
   }
 
   function handleTouchStart(event) {
@@ -192,6 +235,16 @@ export function useGameState() {
         return;
       }
 
+      historyRef.current = {
+        board: prevBoard.map((row) => [...row]),
+        score: scoreRef.current,
+        gameOver,
+        gameWon,
+        winAcknowledged: winAcknowledged.current,
+      };
+
+      setCanUndo(true);
+
       // Вычисляем новый результат вне setState
       const resultWithTile = addRandomTileWithPosition(result.board);
 
@@ -225,6 +278,8 @@ export function useGameState() {
       // Добавляем очки, полученные за объединение плиток
       setScore((prevScore) => {
         const newScore = prevScore + result.score;
+
+        scoreRef.current = newScore;
 
         setBestScores((prevBestScores) => {
           const currentBest = prevBestScores[boardSize] || 0;
@@ -321,5 +376,7 @@ export function useGameState() {
     goToMenu,
     handleTouchStart,
     handleTouchEnd,
+    canUndo,
+    undo,
   };
 }
